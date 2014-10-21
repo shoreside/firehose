@@ -16,7 +16,14 @@ module Firehose
       end
 
       def call(env)
-        websocket_request?(env) ? websocket.call(env) : http_long_poll.call(env)
+        allowed = ENV['ALLOW_ORIGIN'].nil? ? true : env['HTTP_ORIGIN'] == ENV['ALLOW_ORIGIN']
+        if allowed
+          websocket_request?(env) ? websocket.call(env) : http_long_poll.call(env)
+        else
+          # send unauthorized
+          Firehose.logger.error "Consumer request '#{env['REQUEST_URI']}' denied for origin '#{env['HTTP_ORIGIN']}'. Only allow from '#{ENV['ALLOW_ORIGIN']}'"
+          [ 401, {}, [] ]
+        end
       end
 
       # Memoized instance of web socket that can be configured from the rack app.
