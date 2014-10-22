@@ -51,6 +51,12 @@ module Firehose
             # The client is hopelessly behind and underwater. Just reset
             # their whole world with the lastest message.
             message = message_list[0]
+            # Notify client of outdated data:
+            # if OUTDATED_KEY is configured and message contains this setting
+            # change it to be true
+            unless ENV['OUTDATED_KEY'].nil?
+              message = message.gsub "\"#{ENV['OUTDATED_KEY']}\":false", "\"#{ENV['OUTDATED_KEY']}\":true"
+            end
             Firehose.logger.debug "Sending latest message `#{message}` and sequence `#{sequence}` to client directly."
             deferrable.succeed message, sequence
           end
