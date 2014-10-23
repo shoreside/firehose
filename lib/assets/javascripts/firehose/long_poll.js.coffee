@@ -66,6 +66,7 @@ class Firehose.LongPoll extends Firehose.Transport
     if @_needToNotifyOfReconnect or not @_succeeded
       @_needToNotifyOfReconnect = false
       @_open data
+      @config.reconnected()
     return if @_stopRequestLoop
     if jqXhr.status is 200
       # Of course, IE's XDomainRequest doesn't support non-200 success codes.

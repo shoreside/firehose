@@ -6,6 +6,8 @@ class Firehose.Consumer
     @config.error        ||= ->
     # Empty handler for when we establish a connection.
     @config.connected    ||= ->
+    # Empty handler for when we reestablish a connection.
+    @config.reconnected    ||= ->
     # Empty handler for when we're disconnected.
     @config.disconnected ||= ->
     # The initial connection failed. This is probably triggered when a
