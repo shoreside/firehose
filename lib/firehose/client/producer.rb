@@ -43,6 +43,7 @@ module Firehose
         def put(message, channel, opts, &block)
           ttl = opts[:ttl]
           timeout = opts[:timeout] || @timeout || DEFAULT_TIMEOUT
+          auth_token = opts[:auth_token]
 
           response = conn.put do |req|
             req.options[:timeout] = timeout
@@ -59,6 +60,7 @@ module Firehose
             end
             req.body = message
             req.headers['Cache-Control'] = "max-age=#{ttl.to_i}" if ttl
+            req.headers['Authorization'] = "Token token='#{auth_token}'" unless auth_token.blank?
           end
           response.on_complete do
             case response.status

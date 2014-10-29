@@ -38,7 +38,12 @@ module Firehose
 
       private
       def publisher
-        @publisher ||= Publisher.new
+        return @publisher if @publisher
+        authentication_uri = ENV['AUTHENTICATION_URI']
+        authentication_path = ENV['AUTHENTICATION_PATH']
+        (authentication_uri.nil? || authentication_path.nil?) ?
+          @publisher = Publisher.new :
+          @publisher = AuthenticatedPublisher.new(Publisher.new, authentication_uri, authentication_path)
       end
 
       def ping
