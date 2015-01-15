@@ -98,9 +98,14 @@ module Firehose
         end
 
         private
+
+        def ssl_options
+          uri.scheme == 'https' ? {:ssl => {:verify => false}} : {}
+        end
+
         # Build out a Faraday connection
         def conn
-          @conn ||= Faraday.new(:url => uri.to_s) do |builder|
+          @conn ||= Faraday.new({:url => uri.to_s}.merge(ssl_options)) do |builder|
             builder.adapter self.class.adapter
           end
         end
