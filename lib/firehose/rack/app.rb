@@ -27,12 +27,23 @@ module Firehose
           # HTTP error code. I'd do it now but I'm in a plane and can't think of it.
 
           if req.path == '/health/status'
-            # very simple health check: are we here?
-            [ 200, {}, [] ]
+            # if its an authenticated publisher: authentication service healthy?
+            publisher.respond_to?(:authentication_service_healthy?) ?
+              (publisher.authentication_service_healthy? ?
+                healthy_response : not_healthy_response) :
+              healthy_response
           else
             consumer.call(env)
           end
         end
+      end
+
+      def healthy_response
+        [200, {}, []]
+      end
+
+      def not_healthy_response
+        [503, {}, []]
       end
 
       # The consumer pulls messages off of the backend and passes messages to the

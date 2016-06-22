@@ -45,13 +45,32 @@ module Firehose
         authorized ? publisher.call(env) : unauthorized
       end
 
+      def authentication_service_healthy?
+        healthy = false
+        begin
+          response = conn.head do |req|
+            req.path = '/health/status'
+          end
+
+          response.on_complete do
+            case response.status
+            when 200
+              healthy = true
+            end
+          end
+        rescue Faraday::ConnectionFailed => e
+          Firehose.logger.error "Connection to authentication service #{authentication_uri} failed: #{e.message}."
+        end
+        healthy
+      end
+
       private
       def publisher
         @publisher
       end
 
       def unauthorized
-        [401, {}, ["Unauthorized"]]
+        [401, {}, ['Unauthorized']]
       end
 
       # data contains something like this: Token token='some auth token'
