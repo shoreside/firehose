@@ -22,10 +22,7 @@ module Firehose
           # HEAD requests are used to prevent sockets from timing out
           # from inactivity
           ping.call(env)
-        else
-          # TODO - 'harden' this up with a GET request and throw a "Bad Request"
-          # HTTP error code. I'd do it now but I'm in a plane and can't think of it.
-
+        when 'GET'
           if req.path == '/health/status'
             # if its an authenticated publisher: authentication service healthy?
             publisher.respond_to?(:authentication_service_healthy?) ?
@@ -35,15 +32,18 @@ module Firehose
           else
             consumer.call(env)
           end
+        else
+          # dont care about other methods
+          [400, {}, []]
         end
       end
 
       def healthy_response
-        [200, {}, ['healthy']]
+        [200, {'Content-Type' => 'text/plain'}, ['healthy']]
       end
 
       def not_healthy_response
-        [503, {}, ['not healthy']]
+        [503, {'Content-Type' => 'text/plain'}, ['not healthy']]
       end
 
       # The consumer pulls messages off of the backend and passes messages to the

@@ -58,8 +58,8 @@ module Firehose
               healthy = true
             end
           end
-        rescue Faraday::ConnectionFailed => e
-          Firehose.logger.error "Connection to authentication service #{authentication_uri} failed: #{e.message}."
+        rescue Exception => e
+          Firehose.logger.error "No connection to authentication service #{authentication_uri}: #{e.message}."
         end
         healthy
       end
@@ -70,19 +70,15 @@ module Firehose
       end
 
       def unauthorized
-        [401, {}, ['Unauthorized']]
+        [401, {'Content-Type' => 'text/plain'}, ['Unauthorized']]
       end
 
       # data contains something like this: Token token='some auth token'
       def token_from(data)
-        # matches = data.scan(/Token token='(.+)'/)
-        # matches.first.first if matches.size == 1 && matches.first.size > 0
         extract_from data, /Token token='(.+)'/
       end
 
       def guest_list_id_from(path)
-        # matches = path.rstrip.scan(/\/guest_lists\/(\d+)\z/)
-        # matches.first.first if matches.size == 1 && matches.first.size > 0
         extract_from path, /\/guest_lists\/(\d+)\z/
       end
 
