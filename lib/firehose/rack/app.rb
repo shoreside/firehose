@@ -39,11 +39,11 @@ module Firehose
       end
 
       def healthy_response
-        [200, {}, []]
+        [200, {}, ['healthy']]
       end
 
       def not_healthy_response
-        [503, {}, []]
+        [503, {}, ['not healthy']]
       end
 
       # The consumer pulls messages off of the backend and passes messages to the
