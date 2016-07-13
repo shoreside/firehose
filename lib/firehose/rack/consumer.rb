@@ -16,8 +16,7 @@ module Firehose
       end
 
       def call(env)
-        allowed = ENV['ALLOW_ORIGIN'].nil? ? true : env['HTTP_ORIGIN'] == ENV['ALLOW_ORIGIN']
-        if allowed
+        if allowed_origin?(env['HTTP_ORIGIN'])
           websocket_request?(env) ? websocket.call(env) : http_long_poll.call(env)
         else
           # send unauthorized
@@ -40,6 +39,11 @@ module Firehose
       # Determine if the incoming request is a websocket request.
       def websocket_request?(env)
         Firehose::Rack::Consumer::WebSocket.request?(env)
+      end
+
+      def allowed_origin?(origin)
+        return true if ENV['ALLOW_ORIGIN'].nil?
+        ENV['ALLOW_ORIGIN'].split(' ').include?(origin)
       end
     end
   end

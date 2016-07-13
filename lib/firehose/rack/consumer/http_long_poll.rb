@@ -10,7 +10,7 @@ module Firehose
         # for long polling? Most browsers timeout after a connection has been idle for 30s.
         TIMEOUT = 20
 
-        # Configures the timeout for the 
+        # Configures the timeout for the
         attr_accessor :timeout
 
         def initialize(timeout=TIMEOUT)
@@ -78,7 +78,12 @@ module Firehose
 
         def cors_headers(env)
           # TODO seperate out CORS logic as an async middleware with a Goliath web server.
-          {'Access-Control-Allow-Origin' => ENV['ALLOW_ORIGIN'] || cors_origin(env)}
+          {'Access-Control-Allow-Origin' => allowed_origin(cors_origin(env))}
+        end
+
+        def allowed_origin(origin)
+          return origin if ENV['ALLOW_ORIGIN'].nil?
+          ENV['ALLOW_ORIGIN'].split(' ').select{|o| o == origin}.first rescue origin
         end
       end
     end
