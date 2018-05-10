@@ -25,16 +25,17 @@ module Firehose
         unless auth_header.nil? or (token = token_from(auth_header)).nil?
           begin
             req = env['parsed_request']
-            guest_list_id = guest_list_id_from req.path
+            model_name, model_id = model_from req.path
+            unless model_name.nil? || model_id.nil?
+              response = conn.head do |req|
+                req.path = "#{authentication_path}/#{model_name}/#{model_id}/#{token}"
+              end
 
-            response = conn.head do |req|
-              req.path = "#{authentication_path}/#{guest_list_id}/#{token}"
-            end
-
-            response.on_complete do
-              case response.status
-              when 200
-                authorized = true
+              response.on_complete do
+                case response.status
+                when 200
+                  authorized = true
+                end
               end
             end
           rescue Faraday::ConnectionFailed => e
@@ -75,16 +76,19 @@ module Firehose
 
       # data contains something like this: Token token='some auth token'
       def token_from(data)
-        extract_from data, /Token token='(.+)'/
+        extract_from(data, /Token token='(.+)'/).first rescue nil
       end
 
-      def guest_list_id_from(path)
-        extract_from path, /\/guest_lists\/(\d+)\z/
+      # extract model name and id from paths like "/guest_lists/23"
+      # can also handle paths like "/events/23/entry_counters"
+      def model_from(path)
+        extract_from path, /\/(\w+)\/(\d+)/
       end
 
+      # return array of captured matches
       def extract_from(data, pattern)
         matches = data.rstrip.scan pattern
-        matches.first.first if matches.size == 1 && matches.first.size > 0
+        matches.first if matches.size == 1 && matches.first.size > 0
       end
 
       # Faraday connection to authentication server
