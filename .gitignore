@@ -10,3 +10,4 @@ tmp
 *.sublime-workspace
 public/javascripts
 Gemfile.lock
+vendor/bundle
