@@ -1,4 +1,5 @@
 require "faraday"
+require 'faraday/em_http'
 require "uri"
 
 module Firehose
@@ -60,7 +61,7 @@ module Firehose
             end
             req.body = message
             req.headers['Cache-Control'] = "max-age=#{ttl.to_i}" if ttl
-            req.headers['Authorization'] = "Token token='#{auth_token}'" unless auth_token.blank?
+            req.headers['Authorization'] = "Token token='#{auth_token}'" unless auth_token.nil?#blank?
           end
           response.on_complete do
             case response.status
@@ -72,8 +73,17 @@ module Firehose
           end
 
           # Hide Faraday with this Timeout exception, and through the error handler.
-          rescue Faraday::TimeoutError => e
-            error_handler.call TimeoutError.new(e)
+          # rescue Faraday::TimeoutError => e
+          # rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
+          #   error_handler.call TimeoutError.new(e)
+
+          rescue Faraday::ConnectionFailed => e
+            case e.cause
+            when Net::OpenTimeout
+              error_handler.call TimeoutError.new(e)
+            else
+              raise
+            end
         end
 
         # Handle errors that could happen while publishing a message.

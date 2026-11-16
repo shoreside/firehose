@@ -23,13 +23,14 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "eventmachine", ">= 1.0.0"
   s.add_runtime_dependency "em-hiredis", ">= 0.2.0"
   s.add_runtime_dependency "thor"
-  s.add_runtime_dependency "faraday", '~> 1.0'
+  s.add_runtime_dependency "faraday"#, '~> 1.0'
+  s.add_runtime_dependency 'faraday-em_http'
   s.add_runtime_dependency "faye-websocket"
   s.add_runtime_dependency "em-http-request", ">= 1.0.0"
-  s.add_runtime_dependency "json"
+  s.add_runtime_dependency "json", "< 3.0"
   s.add_runtime_dependency "rack"
 
-  s.add_development_dependency "rspec", "~> 2"
+  s.add_development_dependency "rspec"#, "~> 2"
   s.add_development_dependency "webmock"
   s.add_development_dependency "coffee-script"
   s.add_development_dependency "guard-rspec"
@@ -44,6 +45,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "sprockets"
   s.add_development_dependency "rake"
   s.add_development_dependency "evergreen"
-  # s.add_development_dependency "capybara-webkit"
-  # s.add_development_dependency "therubyracer"
+  s.add_development_dependency 'sorted_set'
 end

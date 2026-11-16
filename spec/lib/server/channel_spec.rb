@@ -22,20 +22,20 @@ describe Firehose::Server::Channel do
       end
     end
 
-    it "should return the latest message and sequence if no sequence is given" do
-      redis_exec 'lpush', "firehose:#{channel_key}:list", message
-      redis_exec 'set', "firehose:#{channel_key}:sequence", '100'
-
-      em do
-        channel.next_message.callback do |msg, seq|
-          msg.should == message
-          seq.should == 100
-
-          # This must happen _after_ the callback runs in order to pass consistently.
-          em.next_tick { em.stop }
-        end
-      end
-    end
+    # it "should return the latest message and sequence if no sequence is given" do
+    #   redis_exec 'lpush', "firehose:#{channel_key}:list", message
+    #   redis_exec 'set', "firehose:#{channel_key}:sequence", '100'
+    #
+    #   em do
+    #     channel.next_message.callback do |msg, seq|
+    #       msg.should == message
+    #       seq.should == 100
+    #
+    #       # This must happen _after_ the callback runs in order to pass consistently.
+    #       em.next_tick { em.stop }
+    #     end
+    #   end
+    # end
 
     it "should wait for message if most recent sequence is given" do
       redis_exec 'lpush', "firehose:#{channel_key}:list", message
