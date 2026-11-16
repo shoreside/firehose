@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "em-http-request", ">= 1.0.0"
   s.add_runtime_dependency "json", "< 3.0"
   s.add_runtime_dependency "rack"
+  s.add_runtime_dependency 'cookiejar', '>= 0.3.4'
 
   s.add_development_dependency "rspec"#, "~> 2"
   s.add_development_dependency "webmock"
